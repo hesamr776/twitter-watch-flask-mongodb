@@ -19,14 +19,14 @@ def init():
 
 @counter_app.route("/accounts")
 def accounts():
-    accounts = Accounts.objects
+    accounts = Accounts.objects.all().to_json()
     if  len(accounts) > 0:
         return accounts
     
     Accounts(name='Elon Musk', username='elonmusk').save()
     Accounts(name='Barack Obama', username='barackobama').save()
     Accounts(name='Yann Lecun', username='yannlecun').save()
-    return Accounts.objects
+    return Accounts.objects.all().to_json()
 
 
 
