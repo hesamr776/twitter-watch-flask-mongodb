@@ -1,9 +1,9 @@
-version: '2'
+version: "2"
 services:
   web:
     build: .
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./:/counter_app
     links:
@@ -18,9 +18,10 @@ services:
       FLASK_ENV: development
       SECRET_KEY: "you-will-never-guess"
       MONGODB_HOST: mongodb
-      MONGODB_DB: app      
+      MONGODB_DB: app
   db:
-    image: mongo:3.4.4
+    image: arm64v8/mongo:4.0
+    platform: linux/arm64/v8
     container_name: app_db_1
     ports:
       - "27017:27017"
