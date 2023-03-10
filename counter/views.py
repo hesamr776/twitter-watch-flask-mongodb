@@ -1,9 +1,10 @@
 from flask import Blueprint
+from flask_cors import CORS
 
 from counter.models import Counter, Accounts 
 
 counter_app = Blueprint("counter_app", __name__)
-
+cors = CORS(counter_app)
 
 @counter_app.route("/")
 def init():
