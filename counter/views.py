@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask_cors import CORS
 
 from counter.models import Counter, Accounts 
@@ -20,24 +20,24 @@ def init():
 
 @counter_app.route("/accounts")
 def accounts():
-    accounts = Accounts.objects.all().to_json()
+    accounts = Accounts.objects.all()
     if  len(accounts) > 0:
-        return accounts
+        return jsonify(accounts)
     
     Accounts(name='Elon Musk', username='elonmusk').save()
     Accounts(name='Barack Obama', username='barackobama').save()
     Accounts(name='Yann Lecun', username='yannlecun').save()
-    return Accounts.objects.all().to_json()
+    return jsonify(Accounts.objects.all())
 
 
 
 @counter_app.route('/audience/<username>')
 def audience(username):
-    return [
-        { "id": "elonmusk", "avatar": "/elonmusk.jpg" },
-        { "id": "barackobama", "avatar": "/barackobama.jpg" },
-        { "id": "yannlecun", "avatar": "/yannlecun.jpg" }
-    ]
+    return jsonify([
+        { "username": "elonmusk", "avatar": "/elonmusk.jpg" },
+        { "username": "barackobama", "avatar": "/barackobama.jpg" },
+        { "username": "yannlecun", "avatar": "/yannlecun.jpg" }
+    ])
 
 
 @counter_app.route('/sentiment')
@@ -47,7 +47,7 @@ def sentiment():
 
 @counter_app.route('/tweets/<username>')
 def tweets(username):
-    return [
+    return jsonify([
         {
             "username": username,
             "id": "1234567",
@@ -72,5 +72,5 @@ def tweets(username):
             "text": 'normal tweet message',
             "sentiment": 1
         }
-    ]
+    ])
    
