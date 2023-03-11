@@ -19,6 +19,7 @@ class Reply(db.EmbeddedDocument):
 
       
 class Tweets(db.EmbeddedDocument):
+    tweetId = db.StringField(required=True)
     text = db.StringField(required=True)
     date = db.StringField()
     sentiment = db.BooleanField()
