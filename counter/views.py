@@ -7,6 +7,64 @@ from counter.models import Counter, Accounts, Audience, Tweets, Reply
 counter_app = Blueprint("counter_app", __name__)
 cors = CORS(counter_app)
 
+
+@counter_app.route("/")
+def init():
+    counter = Counter.objects.all().first()
+    if counter:
+        counter.count += 1
+        counter.save()
+    else:
+        counter = Counter()
+        counter.count = 1
+        counter.save()
+    return "<h1>Views: " + str(counter.count) + "</h1>"
+
+@counter_app.route("/accounts")
+def accounts():
+    accounts = Accounts.objects.all()
+
+    return jsonParse(accounts)    
+    
+@counter_app.route('/audience/<username>')
+def audience(username):
+    account = Accounts.objects(username=username).first()
+    
+    return jsonParse(account.audience)
+
+@counter_app.route('/sentiment/<username>')
+def sentiment(username):
+    account = Accounts.objects(username=username).first()
+
+    positive_tweets = len([x for x in account.tweets if x.sentiment == 1]) or 0
+    negative_tweets = len(account.tweets) - positive_tweets
+    
+    positive_replies =  0
+    negative_replies = 0
+    for tweet in account.tweets:
+        for reply in tweet['replies']:
+            if reply['sentiment'] == 1:
+                positive_replies += 1
+            else:
+                negative_replies += 1 
+
+
+    return jsonParse({"positive_tweets":positive_tweets,"negative_tweets":negative_tweets,"positive_replies":positive_replies,"negative_replies":negative_replies})
+
+@counter_app.route('/tweets/<username>')
+def tweets(username):
+    account = Accounts.objects(username=username).first()
+
+    return jsonParse(account.tweets)
+
+  
+@counter_app.route('/replies/<tweetId>')
+def replies(tweetId):
+    account = Accounts.objects(tweets__tweetId=tweetId).first()
+    tweet = [x for x in account.tweets if x.tweetId == tweetId][0] or {replies: []}
+
+    return jsonParse(tweet.replies)
+
 @counter_app.route("/data/<username>")
 def data(username):
     original_tweets = open(f'./data/{username}.json')
@@ -43,7 +101,7 @@ def data(username):
         for reply in map_to_original[tweet['id']]:
             tweet_replies.append(Reply(username=reply['username'], avatar='/barackobama.jpg', text=reply['text'], date=reply['date'], sentiment=reply['sentiment']))
 
-        tweets.append(Tweets(text=tweet['text'], date=tweet['date'], sentiment=tweet['sentiment'], replies=tweet_replies))
+        tweets.append(Tweets(tweetId=str(tweet['id']), text=tweet['text'], date=tweet['date'], sentiment=tweet['sentiment'], replies=tweet_replies))
 
     account = Accounts.objects(username=username).first()
     account.tweets = tweets
@@ -55,45 +113,5 @@ def data(username):
 
     return jsonParse(account)
 
-
-@counter_app.route("/")
-def init():
-    counter = Counter.objects.all().first()
-    if counter:
-        counter.count += 1
-        counter.save()
-    else:
-        counter = Counter()
-        counter.count = 1
-        counter.save()
-    return "<h1>Counter: " + str(counter.count) + "</h1>"
-
-@counter_app.route("/accounts")
-def accounts():
-    accounts = Accounts.objects.all()
-
-    return jsonParse(accounts)    
-    
-@counter_app.route("/update")
-def update():
-    Accounts.objects(username="yannlecun").update(set__username='ylecun')
-    return jsonParse(Accounts.objects.all())
-
-@counter_app.route('/audience/<username>')
-def audience(username):
-    account = Accounts.objects(username=username).first()
-    
-    return jsonParse(account.audience)
-
-@counter_app.route('/sentiment')
-def sentiment():
-    return 'sentiment'
-
-@counter_app.route('/tweets/<username>')
-def tweets(username):
-    account = Accounts.objects(username=username).first()
-
-    return jsonParse(account.tweets)
-  
 def jsonParse(query_set):
     return jsonify(query_set)
