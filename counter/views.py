@@ -65,6 +65,58 @@ def replies(tweetId):
 
     return jsonParse(tweet.replies)
 
+
+@counter_app.route('/update/<username>')
+def update(username):
+    account = Accounts.objects(username=username).first()
+
+    since = account["tweets"][0].date if len(account["tweets"]) else None
+
+    # update = update_tweets(username, since)
+    update = {
+        "tweets": {
+            "tweets": [{
+                "id": 16339850373758771201,
+                "date": "2023-03-11T00:16:05+00:00",
+                "text": "To be alerted about new tweets from any account, tap the bell symbol on the profile page https://t.co/GxfsWpduwV",
+                "username": "elonmusk",
+                "conversationId": 16339850373758771201,
+                "sentiment": 0
+            }]
+        },
+        "replies": {
+            "replies": [{
+                "tweetId": 16339850373758771201,
+                "replies": [
+                    {
+                    "id": 16343295790692720625,
+                    "date": "2023-03-11T23:05:10+00:00",
+                    "text": "daveymac gnev thats got fuck all to do with it the bbc have a set of standards for its massively paid talent and gary fell short of that but hes not short of a gig or so who really loses here",
+                    "username": "stewrogers",
+                    "sentiment": 0
+                    },
+                    {
+                    "id": 16343239578297589760,
+                    "date": "2023-03-11T23:05:10+00:00",
+                    "text": "queenbee oh no he deleted tweets what a pussy",
+                    "username": "PjStephens14",
+                    "sentiment": 0
+                    }
+                ]
+            }]
+        }
+    }
+    update_account = get_update_account(update['tweets'], update['replies'])
+
+    update_account["tweets"] += account.tweets 
+    update_account["audiences"] += account.audience # todo : must be unique
+
+    account.update(set__tweets=update_account["tweets"] ,set__audience=update_account["audiences"])
+    account.reload()
+    
+    return jsonParse(account)
+
+
 @counter_app.route("/data/<username>")
 def data(username):
     original_tweets = open(f'./data/{username}.json')
@@ -72,7 +124,21 @@ def data(username):
 
     reply_tweets = open(f'./data/replyTo-{username}.json')
     reply_data = json.load(reply_tweets)
+    
+    update_account = get_update_account(original_data, reply_data)
 
+    account = Accounts.objects(username=username).first()
+    account.tweets = update_account["tweets"]
+    account.audience = update_account["audiences"]
+    account.save()
+
+    original_tweets.close()
+    reply_tweets.close()
+
+    return  jsonParse(account)
+
+   
+def get_update_account(original_data, reply_data):
     map_to_original = {}
     usernames = []
     for reply in reply_data['replies']:
@@ -103,15 +169,9 @@ def data(username):
 
         tweets.append(Tweets(tweetId=str(tweet['id']), text=tweet['text'], date=tweet['date'], sentiment=tweet['sentiment'], replies=tweet_replies))
 
-    account = Accounts.objects(username=username).first()
-    account.tweets = tweets
-    account.audience = accountAudiences
-    account.save()
     
-    original_tweets.close()
-    reply_tweets.close()
 
-    return jsonParse(account)
+    return { "tweets": tweets, "audiences": accountAudiences }
 
 def jsonParse(query_set):
     return jsonify(query_set)
