@@ -4,9 +4,10 @@ import pandas as pd
 import datetime
 import json
 from json import JSONEncoder
-from preprocessing import preprocess
+from scripts.preprocessing import preprocess
 
 from transformers import pipeline
+
 sentiment_pipeline = pipeline("sentiment-analysis")
 
 
@@ -33,7 +34,6 @@ def search(text, username, since, until, retweet, replies):
 
 
 def get_tweet(username, since='2023-02-01', preproc=False):
-
     original_tweets = []
 
     # this query returns original tweets by given username
@@ -134,6 +134,18 @@ def get_reply(sinceId, language='en', preproc=False):
                 })
 
     return replies
+
+
+def update_tweets(username, since):
+    tweets = get_tweet(username, since, preproc=True)
+    replies = []
+    for tweet in tweets:
+        tweetId = tweet['id']
+        reply = get_reply(tweetId, preproc=True)
+        if reply is not None:
+            replies.append({'tweetId': tweetId, 'replies': reply})
+    print(f'scraping {username} has been done!')
+    return {"tweets": tweets, "replies": replies}
 
 
 class DateTimeEncoder(JSONEncoder):

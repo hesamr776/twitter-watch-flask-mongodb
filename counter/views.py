@@ -2,6 +2,8 @@ import json
 from flask import Blueprint, jsonify
 from flask_cors import CORS
 
+from scripts.snscraper import update_tweets
+
 from counter.models import Counter, Accounts, Audience, Tweets, Reply
 
 counter_app = Blueprint("counter_app", __name__)
@@ -72,7 +74,8 @@ def update(username):
 
     since = account["tweets"][0].date if len(account["tweets"]) else None
 
-    # update = update_tweets(username, since)
+    update = update_tweets(username, since)
+    """""
     update = {
         "tweets": {
             "tweets": [{
@@ -106,6 +109,8 @@ def update(username):
             }]
         }
     }
+        """""
+
     update_account = get_update_account(update['tweets'], update['replies'])
 
     update_account["tweets"] += account.tweets 
