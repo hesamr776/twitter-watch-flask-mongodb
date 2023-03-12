@@ -77,8 +77,11 @@ def replies(tweetId):
 def update(username):
     account = Accounts.objects(username=username).first()
 
-    since = account["tweets"][0].date if len(account["tweets"]) else None
-    since = since[0:10]
+    try:
+        since = account["tweets"][0].date if len(account["tweets"]) else None
+        since = since[0:10]
+    except:
+        since = '2023-02-01'
     print(since)
 
     update = update_tweets(username, since)
