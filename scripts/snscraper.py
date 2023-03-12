@@ -5,9 +5,10 @@ import datetime
 import json
 from json import JSONEncoder
 from preprocessing import preprocess
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-from transformers import pipeline
-sentiment_pipeline = pipeline("sentiment-analysis")
+#from transformers import pipeline
+#sentiment_pipeline = pipeline("sentiment-analysis")
 
 
 def search(text, username, since, until, retweet, replies):
@@ -55,13 +56,16 @@ def get_tweet(username, since='2023-02-01', preproc=False):
         if len(text) == 0:
             continue
 
-        sentiment_prediction = sentiment_pipeline(str(text))
-        if sentiment_prediction[0]['label'] == 'NEGATIVE' and sentiment_prediction[0]['score'] > 0.8:
+        score = SentimentIntensityAnalyzer().polarity_scores(tweet.rawContent)
+
+        if score['neg'] > score['pos']:
             sentiment = 0
-        elif sentiment_prediction[0]['label'] == 'POSITIVE' and sentiment_prediction[0]['score'] > 0.8:
+        elif score['pos'] > score['neg']:
             sentiment = 1
-        else:
+        elif score['pos'] == score['neg']:
             sentiment = -1
+        else:
+            sentiment = None
 
         original_tweets.append({
             'id': tweet.id,
@@ -104,13 +108,16 @@ def get_reply(sinceId, language='en', preproc=False):
         if len(text) == 0:
             continue
 
-        sentiment_prediction = sentiment_pipeline(str(text))
-        if sentiment_prediction[0]['label'] == 'NEGATIVE' and sentiment_prediction[0]['score'] > 0.8:
+        score = SentimentIntensityAnalyzer().polarity_scores(reply.rawContent)
+
+        if score['neg'] > score['pos']:
             sentiment = 0
-        elif sentiment_prediction[0]['label'] == 'POSITIVE' and sentiment_prediction[0]['score'] > 0.8:
+        elif score['pos'] > score['neg']:
             sentiment = 1
-        else:
+        elif score['pos'] == score['neg']:
             sentiment = -1
+        else:
+            sentiment = None
 
         if language == 'all':
             replies.append({
@@ -140,6 +147,18 @@ class DateTimeEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
+
+
+def update_tweets(username, since):
+    tweets = get_tweet(username, since, preproc=True)
+    replies = []
+    for tweet in tweets:
+        tweetId = tweet['id']
+        reply = get_reply(tweetId, preproc=True)
+        if reply is not None:
+            replies.append({'tweetId': tweetId, 'replies': reply})
+    print(f'scraping {username} has been done!')
+    return {"tweets": tweets, "replies": replies}
 
 
 if __name__ == '__main__':
