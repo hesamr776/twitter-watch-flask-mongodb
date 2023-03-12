@@ -1,10 +1,10 @@
-import sys
+#import sys
 import snscrape.modules.twitter as sntwitter
-import pandas as pd
+#import pandas as pd
 import datetime
 import json
 from json import JSONEncoder
-from preprocessing import preprocess
+#from preprocessing import preprocess
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 #from transformers import pipeline
@@ -48,10 +48,10 @@ def get_tweet(username, since='2023-02-01', preproc=False):
             if i >= max_tweet:
                 break
 
-        if preproc:
-            text = preprocess(tweet.rawContent).get_result()
-        else:
-            text = tweet.rawContent
+        #if preproc:
+            #text = preprocess(tweet.rawContent).get_result()
+        #else:
+        text = tweet.rawContent
 
         if len(text) == 0:
             continue
@@ -100,10 +100,10 @@ def get_reply(sinceId, language='en', preproc=False):
         if j >= max_reply:
             break
 
-        if preproc:
-            text = preprocess(reply.rawContent).get_result()
-        else:
-            text = reply.rawContent
+        #if preproc:
+            #text = preprocess(reply.rawContent).get_result()
+        #else:
+        text = reply.rawContent
 
         if len(text) == 0:
             continue
