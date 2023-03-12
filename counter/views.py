@@ -78,6 +78,8 @@ def update(username):
     account = Accounts.objects(username=username).first()
 
     since = account["tweets"][0].date if len(account["tweets"]) else None
+    since = since[0:10]
+    print(since)
 
     update = update_tweets(username, since)
     """""
@@ -115,9 +117,7 @@ def update(username):
         }
     }
         """""
-
     update_account = get_update_account(update['tweets'], update['replies'])
-
     update_account["tweets"] += account.tweets
     update_account["audiences"] += account.audience  # todo : must be unique
 

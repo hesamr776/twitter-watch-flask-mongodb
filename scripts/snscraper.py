@@ -6,6 +6,8 @@ import json
 from json import JSONEncoder
 #from preprocessing import preprocess
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import nltk
+nltk.downloader.download('vader_lexicon')
 
 #from transformers import pipeline
 #sentiment_pipeline = pipeline("sentiment-analysis")
@@ -33,12 +35,12 @@ def search(text, username, since, until, retweet, replies):
     return query
 
 
-def get_tweet(username, since='2023-02-01', preproc=False):
+def get_tweet(username, since, preproc=False):
 
     original_tweets = []
 
     # this query returns original tweets by given username
-    query = search('', str(username), since, '', 'y', 'y')
+    query = search('', str(username), str(since), '', 'y', 'y')
     max_tweet = -1
 
     # Using TwitterSearchScraper to scrape data and append tweets to list
@@ -69,7 +71,7 @@ def get_tweet(username, since='2023-02-01', preproc=False):
 
         original_tweets.append({
             'id': tweet.id,
-            'date': tweet.date,
+            'date': str(tweet.date)[0:10],
             'text': tweet.rawContent,
             'username': tweet.user.username,
             'conversationId': tweet.conversationId,
@@ -122,7 +124,7 @@ def get_reply(sinceId, language='en', preproc=False):
         if language == 'all':
             replies.append({
                 'id': reply.id,
-                'date': reply.date,
+                'date': str(reply.date)[0:10],
                 'text': reply.rawContent,
                 'username': reply.user.username,
                 'conversationId': reply.conversationId,
@@ -133,7 +135,7 @@ def get_reply(sinceId, language='en', preproc=False):
             if reply.lang == str(language):
                 replies.append({
                     'id': reply.id,
-                    'date': reply.date,
+                    'date': str(reply.date)[0:10],
                     'text': text,
                     'username': reply.user.username,
                     'conversationId': reply.conversationId,
@@ -158,11 +160,13 @@ def update_tweets(username, since):
         if reply is not None:
             replies.append({'tweetId': tweetId, 'replies': reply})
     print(f'scraping {username} has been done!')
-    return {"tweets": tweets, "replies": replies}
+    print(tweets)
+    return { "tweets": { "tweets": tweets }, "replies": { "replies": replies } }
 
 
 if __name__ == '__main__':
-
+    update = update_tweets('elonmusk', '2023-02-01')
+    """""
     users = ['elonmusk', 'BarackObama', 'taylorlorenz', 'cathiedwood', 'ylecun']
 
     for user in users:
@@ -184,3 +188,4 @@ if __name__ == '__main__':
         except:
             print('failed to save replies')
             pass
+    """""
