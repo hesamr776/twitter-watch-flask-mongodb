@@ -9,7 +9,6 @@ from counter.models import Counter, Accounts, Audience, Tweets, Reply
 counter_app = Blueprint("counter_app", __name__)
 cors = CORS(counter_app)
 
-
 @counter_app.route("/")
 def init():
     counter = Counter.objects.all().first()
@@ -26,8 +25,14 @@ def init():
 @counter_app.route("/accounts")
 def accounts():
     accounts = Accounts.objects.all()
+    if  len(accounts) > 0:
+        return jsonify(accounts)
+    
+    Accounts(name='Elon Musk', username='elonmusk').save()
+    Accounts(name='Barack Obama', username='barackobama').save()
+    Accounts(name='Yann Lecun', username='ylecun').save()
+    return jsonify(Accounts.objects.all())
 
-    return jsonParse(accounts)
 
 
 @counter_app.route('/audience/<username>')
