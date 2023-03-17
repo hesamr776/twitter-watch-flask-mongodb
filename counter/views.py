@@ -89,43 +89,9 @@ def update(username):
         since = '2023-02-01'
     print(since)
 
-    update = update_tweets(username, since)
-    """""
-    update = {
-        "tweets": {
-            "tweets": [{
-                "id": 16339850373758771201,
-                "date": "2023-03-11T00:16:05+00:00",
-                "text": "To be alerted about new tweets from any account, tap the bell symbol on the profile page https://t.co/GxfsWpduwV",
-                "username": "elonmusk",
-                "conversationId": 16339850373758771201,
-                "sentiment": 0
-            }]
-        },
-        "replies": {
-            "replies": [{
-                "tweetId": 16339850373758771201,
-                "replies": [
-                    {
-                    "id": 16343295790692720625,
-                    "date": "2023-03-11T23:05:10+00:00",
-                    "text": "daveymac gnev thats got fuck all to do with it the bbc have a set of standards for its massively paid talent and gary fell short of that but hes not short of a gig or so who really loses here",
-                    "username": "stewrogers",
-                    "sentiment": 0
-                    },
-                    {
-                    "id": 16343239578297589760,
-                    "date": "2023-03-11T23:05:10+00:00",
-                    "text": "queenbee oh no he deleted tweets what a pussy",
-                    "username": "PjStephens14",
-                    "sentiment": 0
-                    }
-                ]
-            }]
-        }
-    }
-        """""
-    update_account = get_update_account(update['tweets'], update['replies'])
+    update_account_tweets = update_tweets(username, since)
+   
+    update_account = get_update_account(update_account_tweets['tweets'], update_account_tweets['replies'])
     update_account["tweets"] += account.tweets
     update_account["audiences"] += account.audience  # todo : must be unique
 

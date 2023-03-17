@@ -162,30 +162,3 @@ def update_tweets(username, since):
     print(f'scraping {username} has been done!')
     print(tweets)
     return { "tweets": { "tweets": tweets }, "replies": { "replies": replies } }
-
-
-if __name__ == '__main__':
-    update = update_tweets('elonmusk', '2023-02-01')
-    """""
-    users = ['elonmusk', 'BarackObama', 'taylorlorenz', 'cathiedwood', 'ylecun']
-
-    for user in users:
-
-        tweets = get_tweet(user, preproc=True)
-
-        # the tweets which include empty list for replies, were just link or media
-        replies = []
-        for tweet in tweets:
-            tweetId = tweet['id']
-            reply = get_reply(tweetId, preproc=True)
-            if reply is not None:
-                replies.append({'tweetId': tweetId, 'replies': reply})
-        print(f'scraping {user} has been done!')
-
-        try:
-            with open(f'../data/replyTo-{user}.json', 'w') as f:
-                json.dump(replies, f, cls=DateTimeEncoder)
-        except:
-            print('failed to save replies')
-            pass
-    """""
