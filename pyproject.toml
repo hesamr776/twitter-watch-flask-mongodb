@@ -1,17 +1,17 @@
 [tool.poetry]
-name = "flask-mongodb-boilerplate"
-version = "0.1.0"
+name = "twitter-watch-flask-mongodb"
+version = "1.0.0"
 description = ""
-authors = ["Jorge Escobar <jorge@fromzero.io>"]
+authors = ["hesam rajaei <hesamr76@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 Flask = "2.0.2"
 python-dotenv = "0.19.2"
 flask-mongoengine = "1.0.0"
 pytest = "6.2.1"
 flask_cors = "3.0.10"
-snscrape = "0.6.0.20230303"
+snscrape = "0.3.4"
 nltk = "3.8.1"
 
 [tool.poetry.dev-dependencies]
